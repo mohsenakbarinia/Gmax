@@ -1,0 +1,131 @@
+{
+  "entities": {
+    "UserProfileStats": {
+      "title": "UserProfileStats",
+      "description": "Career hunting progression, trophy counts, longest vital shot record, and contract tracking for an authenticated hunter.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "totalHarvests": {
+          "type": "integer",
+          "description": "Total number of animals harvested by the user."
+        },
+        "goldTrophies": {
+          "type": "integer",
+          "description": "Total number of clean vital-shot Gold Trophy harvests."
+        },
+        "longestVitalShotMeters": {
+          "type": "integer",
+          "description": "Longest clean vital-organ shot distance in meters."
+        },
+        "completedContractsCount": {
+          "type": "integer",
+          "description": "Total hunting contracts completed by the user."
+        },
+        "activeContractIndex": {
+          "type": "integer",
+          "description": "Index of the current active rotating hunting contract."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp() upon initial creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp() on every update."
+        }
+      },
+      "required": [
+        "userId",
+        "totalHarvests",
+        "goldTrophies",
+        "longestVitalShotMeters",
+        "completedContractsCount",
+        "activeContractIndex",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "TrophyRecord": {
+      "title": "TrophyRecord",
+      "description": "Individual harvested wildlife trophy entry logged with species, weapon, hit zone, distance, score, and weather preset.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID."
+        },
+        "species": {
+          "type": "string",
+          "enum": ["ROYAL_STAG", "WILD_BOAR", "TIMBER_WOLF"],
+          "description": "Harvested wildlife species identifier."
+        },
+        "weapon": {
+          "type": "string",
+          "enum": ["RIFLE_308", "RECURVE_BOW"],
+          "description": "Weapon used for the harvest."
+        },
+        "hitZone": {
+          "type": "string",
+          "enum": ["HEART", "LUNGS", "HEAD", "BODY"],
+          "description": "Anatomical hit zone registered on the fatal shot."
+        },
+        "rating": {
+          "type": "string",
+          "enum": ["GOLD", "SILVER", "BRONZE"],
+          "description": "Ethical trophy rating awarded for the harvest."
+        },
+        "distanceMeters": {
+          "type": "integer",
+          "description": "Shot distance in meters."
+        },
+        "scorePoints": {
+          "type": "integer",
+          "description": "Calculated trophy points."
+        },
+        "weatherPreset": {
+          "type": "string",
+          "enum": ["GOLDEN_HOUR", "MISTY_DAWN", "RAINY_STORM", "MOONLIT_NIGHT"],
+          "description": "Active weather and time-of-day preset during harvest."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp() on creation."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp set via FieldValue.serverTimestamp() on update."
+        }
+      },
+      "required": [
+        "userId",
+        "species",
+        "weapon",
+        "hitZone",
+        "rating",
+        "distanceMeters",
+        "scorePoints",
+        "weatherPreset",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/profile/{docId}": {
+      "schema": { "$ref": "#/entities/UserProfileStats" },
+      "description": "Per-user career hunting stats document (docId = 'stats')."
+    },
+    "/users/{userId}/trophies/{trophyId}": {
+      "schema": { "$ref": "#/entities/TrophyRecord" },
+      "description": "Per-user harvested trophy log entries."
+    }
+  }
+}

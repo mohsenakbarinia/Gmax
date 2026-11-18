@@ -1,0 +1,138 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Reusable hardened security helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Validation helper for UserProfileStats
+    function isValidUserProfileStats(data, userId) {
+      return data.userId is string &&
+             data.userId.size() >= 1 &&
+             data.userId.size() <= 128 &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.totalHarvests is int && data.totalHarvests >= 0 && data.totalHarvests <= 1000000 &&
+             data.goldTrophies is int && data.goldTrophies >= 0 && data.goldTrophies <= 1000000 &&
+             data.goldTrophies <= data.totalHarvests &&
+             data.longestVitalShotMeters is int && data.longestVitalShotMeters >= 0 && data.longestVitalShotMeters <= 2000 &&
+             data.completedContractsCount is int && data.completedContractsCount >= 0 && data.completedContractsCount <= 100000 &&
+             data.activeContractIndex is int && data.activeContractIndex >= 0 && data.activeContractIndex <= 1000 &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // Validation helper for TrophyRecord
+    function isValidTrophyRecord(data, userId) {
+      return data.userId is string &&
+             data.userId.size() >= 1 &&
+             data.userId.size() <= 128 &&
+             data.userId == userId &&
+             data.userId == request.auth.uid &&
+             data.species is string && data.species.size() <= 32 &&
+             data.species in ['ROYAL_STAG', 'WILD_BOAR', 'TIMBER_WOLF'] &&
+             data.weapon is string && data.weapon.size() <= 32 &&
+             data.weapon in ['RIFLE_308', 'RECURVE_BOW'] &&
+             data.hitZone is string && data.hitZone.size() <= 16 &&
+             data.hitZone in ['HEART', 'LUNGS', 'HEAD', 'BODY'] &&
+             data.rating is string && data.rating.size() <= 16 &&
+             data.rating in ['GOLD', 'SILVER', 'BRONZE'] &&
+             data.distanceMeters is int && data.distanceMeters >= 1 && data.distanceMeters <= 1500 &&
+             data.scorePoints is int && data.scorePoints >= 10 && data.scorePoints <= 10000 &&
+             data.weatherPreset is string && data.weatherPreset.size() <= 32 &&
+             data.weatherPreset in ['GOLDEN_HOUR', 'MISTY_DAWN', 'RAINY_STORM', 'MOONLIT_NIGHT'] &&
+             data.createdAt is timestamp && data.createdAt <= request.time &&
+             data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    // Per-user career stats document (/users/{userId}/profile/stats)
+    match /users/{userId}/profile/{docId} {
+      allow get: if isOwner(userId) && isValidId(userId) && docId == 'stats';
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       docId == 'stats' &&
+                       incoming().keys().hasAll([
+                         'userId', 'totalHarvests', 'goldTrophies',
+                         'longestVitalShotMeters', 'completedContractsCount',
+                         'activeContractIndex', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'totalHarvests', 'goldTrophies',
+                         'longestVitalShotMeters', 'completedContractsCount',
+                         'activeContractIndex', 'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidUserProfileStats(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       docId == 'stats' &&
+                       isValidUserProfileStats(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'totalHarvests', 'goldTrophies', 'longestVitalShotMeters',
+                         'completedContractsCount', 'activeContractIndex', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(userId) && docId == 'stats';
+    }
+
+    // Per-user harvested trophy log (/users/{userId}/trophies/{trophyId})
+    match /users/{userId}/trophies/{trophyId} {
+      allow get: if isOwner(userId) && isValidId(userId) && isValidId(trophyId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(trophyId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'species', 'weapon', 'hitZone', 'rating',
+                         'distanceMeters', 'scorePoints', 'weatherPreset',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'species', 'weapon', 'hitZone', 'rating',
+                         'distanceMeters', 'scorePoints', 'weatherPreset',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidTrophyRecord(incoming(), userId);
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidId(trophyId) &&
+                       isValidTrophyRecord(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'rating', 'scorePoints', 'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(userId) && isValidId(trophyId);
+    }
+  }
+}

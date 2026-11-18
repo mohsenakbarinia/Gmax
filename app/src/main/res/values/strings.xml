@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Wildwood: Reality</string>
+    <string name="subtitle_alpine_hunt">ALPINE FOREST HUNTING SIMULATION</string>
+    <string name="sign_in_google">Sign in with Google</string>
+    <string name="sign_in_subtitle">Sync your Trophy Log, vital-shot records, and hunting contracts across devices.</string>
+    <string name="play_fullscreen">PLAY FULLSCREEN</string>
+    <string name="synthesizing_textures">Synthesizing 512px PBR Alpine Materials</string>
+    <string name="rotate_hint_title">Rotate to Landscape for Best Experience</string>
+    <string name="continue_anyway">Continue Anyway</string>
+    <string name="trophy_log_title">Trophy Log &amp; Contracts</string>
+    <string name="settings_title">Field Settings</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="resume_hunt">Resume Hunt</string>
+    <string name="restart_hunt">Restart Valley</string>
+    <string name="return_title">Title Screen</string>
+    <string name="empty_trophies_title">No Trophies Logged Yet</string>
+    <string name="empty_trophies_body">Stalk the valley upwind, steady your breath, and land a clean vital-organ shot to log your first trophy.</string>
+    <string name="cd_settings">Open Settings</string>
+    <string name="cd_trophies">Open Trophy Log</string>
+    <string name="cd_fire">Fire Weapon</string>
+    <string name="cd_cancel_draw">Cancel Bow Draw</string>
+    <string name="cd_scope">Toggle Optical Scope</string>
+    <string name="cd_hold_breath">Hold Breath to Steady Aim</string>
+    <string name="cd_stance">Cycle Stance</string>
+    <string name="cd_jump">Jump</string>
+    <string name="cd_reload">Reload Rifle</string>
+    <string name="cd_hunter_sense">Activate Hunter Sense</string>
+    <string name="cd_flashlight">Toggle Tactical Flashlight</string>
+    <string name="cd_switch_weapon">Switch Weapon</string>
+    <string name="cd_close">Close Panel</string>
+    <string name="cd_delete_trophy">Delete Trophy Record</string>
+</resources>

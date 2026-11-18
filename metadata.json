@@ -1,0 +1,6 @@
+{
+  "name": "Wildwood: Reality",
+  "description": "Photorealistic 3D first-person alpine forest hunting game with OpenGL ES 3.0 PBR graphics, articulated wildlife AI, rifle and bow ballistics, mobile touch and gyroscope controls, procedural spatial audio, and cloud-synced trophy records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
